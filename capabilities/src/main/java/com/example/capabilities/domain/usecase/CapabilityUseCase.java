@@ -4,7 +4,9 @@ import com.example.capabilities.domain.api.ICapabilityServicePort;
 import com.example.capabilities.domain.enums.Message;
 import com.example.capabilities.domain.exceptions.DomainException;
 import com.example.capabilities.domain.model.Capability;
+import com.example.capabilities.domain.model.CapabilityWithTechnologies;
 import com.example.capabilities.domain.spi.ICapabilityPersistencePort;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
@@ -55,4 +57,14 @@ public class CapabilityUseCase implements ICapabilityServicePort {
                             );
                 });
     }
+    @Override
+    public Flux<CapabilityWithTechnologies> listCapabilities(int page, int size, String sortBy, String order) {
+        return capabilityPersistencePort.findAll(page, size, sortBy, order);
+    }
+
+    @Override
+    public Mono<Long> countAll() {
+        return capabilityPersistencePort.countAll();
+    }
+
 }

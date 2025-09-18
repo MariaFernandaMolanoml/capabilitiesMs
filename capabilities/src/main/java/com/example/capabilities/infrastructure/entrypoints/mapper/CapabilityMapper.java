@@ -1,7 +1,9 @@
 package com.example.capabilities.infrastructure.entrypoints.mapper;
 
 import com.example.capabilities.domain.model.Capability;
+import com.example.capabilities.domain.model.CapabilityWithTechnologies;
 import com.example.capabilities.infrastructure.entrypoints.dto.CapabilityDTO;
+import com.example.capabilities.infrastructure.entrypoints.dto.CapabilityListDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -13,4 +15,8 @@ public interface CapabilityMapper {
     @Mapping(source = "description", target = "description")
     Capability dtoToModel(CapabilityDTO dto);
     CapabilityDTO modelToDto(Capability model);
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "technologies", target = "technologies")
+    CapabilityListDTO toDto(CapabilityWithTechnologies model);
 }

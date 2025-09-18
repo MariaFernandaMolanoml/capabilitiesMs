@@ -1,6 +1,7 @@
 package com.example.capabilities.infrastructure.adapter.repository;
 
 import com.example.capabilities.infrastructure.adapter.entity.CapabilityTechnologyEntity;
+import com.example.capabilities.infrastructure.adapter.util.CapacityCountProjection;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
@@ -15,4 +16,9 @@ public interface CapabilityTechnologyRepository extends ReactiveCrudRepository<C
 
     @Query("SELECT * FROM capability_technology WHERE capability_id = :capabilityId")
     Flux<CapabilityTechnologyEntity> findByCapabilityId(UUID capabilityId);
+
+    @Query("SELECT capability_id AS capabilityId, COUNT(technology_id) AS cantidad " +
+            "FROM capability_technology " +
+            "GROUP BY capability_id")
+    Flux<CapacityCountProjection> countTechnologiesByCapability();
 }

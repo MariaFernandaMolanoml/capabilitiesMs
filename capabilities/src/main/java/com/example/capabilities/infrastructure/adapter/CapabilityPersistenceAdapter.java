@@ -1,6 +1,8 @@
 package com.example.capabilities.infrastructure.adapter;
 
 import com.example.capabilities.domain.model.Capability;
+import com.example.capabilities.domain.model.CapabilityWithTechnologies;
+import com.example.capabilities.domain.model.TechnologySummary;
 import com.example.capabilities.domain.spi.ICapabilityPersistencePort;
 import com.example.capabilities.infrastructure.adapter.entity.CapabilityEntity;
 import com.example.capabilities.infrastructure.adapter.entity.CapabilityTechnologyEntity;
@@ -29,8 +31,6 @@ public class CapabilityPersistenceAdapter implements ICapabilityPersistencePort 
     @Override
     public Mono<Capability> saveCapability(Capability capability) {
         CapabilityEntity entity = capabilityEntityMapper.toEntity(capability);
-
-        // dejamos que DB asigne el UUID si entity.getId() == null
         return capabilityRepository.save(entity)
                 .map(capabilityEntityMapper::toModel);
     }
@@ -45,7 +45,6 @@ public class CapabilityPersistenceAdapter implements ICapabilityPersistencePort 
                             .capabilityId(capabilityId)
                             .technologyId(techId)
                             .build();
-                    // id será null → DB lo genera
                     return capabilityTechnologyRepository.save(rel).then();
                 })
                 .then();
@@ -78,4 +77,42 @@ public class CapabilityPersistenceAdapter implements ICapabilityPersistencePort 
                     return Mono.just(false);
                 });
     }
+    @Override
+    public Flux<CapabilityWithTechnologies> findAll(int page, int size, String sortBy, String order) {
+        int offset = page * size;
+
+        Flux<CapabilityEntity> baseFlux;
+
+        if ("name".equalsIgnoreCase(sortBy)) {
+            baseFlux = "desc".equalsIgnoreCase(order)
+                    ? capabilityRepository.findAllByPageDesc(size, offset)
+                    : capabilityRepository.findAllByPageAsc(size, offset);
+        } else {
+            baseFlux = capabilityRepository.findAllByPageAsc(size, offset);
+        }
+
+        return baseFlux.flatMap(cap ->
+                capabilityTechnologyRepository.findByCapabilityId(cap.getId())
+                        .flatMap(rel -> technologyWebClient.get()
+                                .uri("/technologies/{id}", rel.getTechnologyId())
+                                .retrieve()
+                                .bodyToMono(CapabilityTechnologyDTO.class)
+                                .map(dto -> new TechnologySummary(dto.getId(), dto.getName()))
+                        )
+                        .collectList()
+                        .map(techs -> new CapabilityWithTechnologies(cap.getId(), cap.getName(), techs))
+        ).collectSortedList((c1, c2) -> {
+            if ("techCount".equalsIgnoreCase(sortBy)) {
+                int diff = Integer.compare(c1.technologies().size(), c2.technologies().size());
+                return "desc".equalsIgnoreCase(order) ? -diff : diff;
+            }
+            return 0;
+        }).flatMapMany(Flux::fromIterable);
+    }
+
+    @Override
+    public Mono<Long> countAll() {
+        return capabilityRepository.count();
+    }
+
 }

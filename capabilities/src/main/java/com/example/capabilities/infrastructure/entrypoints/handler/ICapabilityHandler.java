@@ -6,4 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface ICapabilityHandler {
     Mono<ServerResponse> createCapability(ServerRequest request);
+    Mono<ServerResponse> listCapabilities(ServerRequest serverRequest);
 }
