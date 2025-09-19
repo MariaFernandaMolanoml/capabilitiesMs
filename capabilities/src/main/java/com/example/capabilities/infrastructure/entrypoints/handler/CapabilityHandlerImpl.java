@@ -48,4 +48,13 @@ public class CapabilityHandlerImpl implements ICapabilityHandler {
                         CapabilityListDTO.class
                 );
     }
+    @Override
+    public Mono<ServerResponse> listCapabilitiesSimple(ServerRequest request) {
+        return ServerResponse.ok()
+                .body(
+                        capabilityServicePort.listAllCapabilities() // método sin paginación
+                                .map(capabilityMapper::modelToDto), // usa CapabilityDTO (ids de tech)
+                        CapabilityDTO.class
+                );
+    }
 }

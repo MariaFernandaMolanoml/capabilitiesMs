@@ -67,4 +67,9 @@ public class CapabilityUseCase implements ICapabilityServicePort {
         return capabilityPersistencePort.countAll();
     }
 
+    @Override
+    public Flux<Capability> listAllCapabilities() {
+        return capabilityPersistencePort.findAll();
+    }
+
 }

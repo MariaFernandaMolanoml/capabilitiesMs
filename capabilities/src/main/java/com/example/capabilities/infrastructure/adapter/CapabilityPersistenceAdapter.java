@@ -115,4 +115,10 @@ public class CapabilityPersistenceAdapter implements ICapabilityPersistencePort 
         return capabilityRepository.count();
     }
 
+    @Override
+    public Flux<Capability> findAll() {
+        return capabilityRepository.findAll()
+                .map(entity -> new Capability(entity.getId(), entity.getName(), entity.getDescription()));
+    }
+
 }

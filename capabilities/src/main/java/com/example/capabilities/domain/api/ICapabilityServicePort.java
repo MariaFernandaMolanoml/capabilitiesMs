@@ -13,4 +13,5 @@ public interface ICapabilityServicePort {
 
     Flux<CapabilityWithTechnologies> listCapabilities(int page, int size, String sortBy, String order);
     Mono<Long> countAll();
+    Flux<Capability> listAllCapabilities();
 }

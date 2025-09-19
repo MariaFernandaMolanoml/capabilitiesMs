@@ -15,6 +15,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
         @Bean
         public RouterFunction<ServerResponse> capabilityRoutes(ICapabilityHandler handler) {
             return RouterFunctions.route(POST("/capabilities"), handler::createCapability)
-                    .andRoute(GET("/capabilities"), handler::listCapabilities);
+                    .andRoute(GET("/capabilities"), handler::listCapabilities)
+                    .andRoute(GET("/capabilities/simple"), handler::listCapabilitiesSimple);
         }
     }

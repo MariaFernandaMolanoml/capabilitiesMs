@@ -16,4 +16,5 @@ public interface ICapabilityPersistencePort {
     Mono<Boolean> validateTechnologiesExist(List<UUID> technologies);
     Flux<CapabilityWithTechnologies> findAll(int page, int size, String sortBy, String order);
     Mono<Long> countAll();
+    Flux<Capability> findAll();
 }
