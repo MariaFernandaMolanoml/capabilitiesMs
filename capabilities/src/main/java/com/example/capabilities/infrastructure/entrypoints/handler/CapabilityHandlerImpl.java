@@ -32,7 +32,7 @@ public class CapabilityHandlerImpl implements ICapabilityHandler {
                     List<UUID> technologies = dto.getTechnologies();
                     return capabilityServicePort.registerCapability(capability, technologies);
                 })
-                .flatMap(saved -> ServerResponse.ok().bodyValue(saved));
+                .flatMap(saved -> ServerResponse.status(201).bodyValue(saved));
     }
 
     @Override

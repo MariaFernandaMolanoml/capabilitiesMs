@@ -41,19 +41,20 @@ public class CapabilityUseCase implements ICapabilityServicePort {
 
         return capabilityPersistencePort.existsByName(capabilityToSave.name())
                 .flatMap(exists -> {
-                    if (exists) {
+                    if (Boolean.TRUE.equals(exists)) {
                         return Mono.error(new DomainException(Message.CAPABILITY_ALREADY_EXISTS));
                     }
                     return capabilityPersistencePort.validateTechnologiesExist(technologies);
                 })
+
                 .flatMap(allExist -> {
-                    if (!allExist) {
+                    if (!Boolean.TRUE.equals(allExist)) {
                         return Mono.error(new DomainException(Message.INVALID_TECHNOLOGIES));
                     }
                     return capabilityPersistencePort.saveCapability(capabilityToSave)
                             .flatMap(saved ->
                                     capabilityPersistencePort.saveCapabilityTechnologies(saved.id(), technologies)
-                                            .thenReturn(saved)
+                                            .then(Mono.just(saved))
                             );
                 });
     }
